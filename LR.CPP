@@ -20,12 +20,54 @@ typedef struct type {
 
 typedef struct status {
 	int num[20];
-	int length;
+	int length ;
+	void printStauts(){ //打印操作
+		for(int i =0; i < length; i++){
+			cout<<num[i];
+		}
+	}
+
+	void add(int i){  //元素压入栈中
+		num[length] = i;
+		length++;
+	}
+	
+	int getTop(){  //获取栈顶元素
+		return num[length-1];
+	}
+
+	void del(int key){   //删除栈顶key个元素
+		for(int i = 0; i < key; i++){
+			length--;
+		}
+	}
+
 } status;
 
 typedef struct ch {
 	char charact[20];
 	int length;
+
+	void printCh(){  //打印栈
+		for(int i =0; i < length; i++){
+			cout<<charact[i];
+		}
+	}
+
+	void add(char c){  //元素压进栈中
+		charact[length] = c;
+		length++;
+	}
+
+	char getTop(){  //获取栈顶元素
+		return charact[length-1];
+	}
+
+	void del(int key){  //删除栈中key个元素
+		for(int i = 0; i < key; i++){
+			length--;
+		}
+	}
 } ch;
 
 status sta;
@@ -33,7 +75,7 @@ ch c;
 
 char VT[6] = { 'i', '+', '*', '(', ')', '#' };
 char VN[3] = { 'E', 'T', 'F' }; 
-R r[6];
+R r[7];
 int i, j;
 
 
@@ -41,30 +83,46 @@ int i, j;
 type ACTION[6][11];
 	int GOTO[3][11];
 
-void init(){
-	r[0].origin = 'E';
-	r[0].array = "E+T";
-	r[0].length = 3;
 
-	r[1].origin = 'E';
-	r[1].array = "T";
-	r[1].length = 1;
+	int getVT(char c){ //获取终结符位置
+	for(int i = 0; i < 6; i++) {
+		if(VT[i] == c) return i;	
+	}
+	return -1;
+}
 
-	r[2].origin = 'T';
-	r[2].array = "T*F";
-	r[2].length = 3;
+int getVN(char c){   //获取非终结符位置
+	for(int i = 0; i < 3; i++) {
+		if(VN[i] == c) return i;
+	}
+	return -1;
+}
+
+
+void init(){ //初始化
+	r[1].origin = 'E';   //初始化产生式
+	r[1].array = "E+T";
+	r[1].length = 3;
+
+	r[2].origin = 'E';
+	r[2].array = "T";
+	r[2].length = 1;
 
 	r[3].origin = 'T';
-	r[3].array = "F";
-	r[3].length = 1;
+	r[3].array = "T*F";
+	r[3].length = 3;
 
-	r[4].origin = 'F';
-	r[4].array = "(E)";
-	r[4].length = 3;
+	r[4].origin = 'T';
+	r[4].array = "F";
+	r[4].length = 1;
 
 	r[5].origin = 'F';
-	r[5].array = "i";
-	r[5].length = 1;
+	r[5].array = "(E)";
+	r[5].length = 3;
+
+	r[6].origin = 'F';
+	r[6].array = "i";
+	r[6].length = 1;
 
 	
 	for(i = 0; i < 20; i++){
@@ -74,13 +132,13 @@ void init(){
 
 	for(i = 0; i < 20; i++){
 		c.charact[i] = 0;
-		if(i == 0) sta.length = 0;
+		if(i == 0) c.length = 0;
 	}
 
 
 	for(i = 0; i < 6; i++)
 	{
-		for(int j = 0; j < 11 ;j++){
+		for(int j = 0; j < 12 ;j++){
 			ACTION[i][j].first = 'N';
 			ACTION[i][j].second = '-1';
 		}
@@ -88,11 +146,11 @@ void init(){
 
 	for(i = 0; i < 3; i++)
 	{
-		for(j = 0; j < 11; j++){
+		for(j = 0; j < 12; j++){
 			GOTO[i][j] = -1;
 		}
 	}
-
+	//初始分析表
 	ACTION[0][0].first = 's' ,ACTION[0][0].second = 5;
 	ACTION[0][4].first = 's' ,ACTION[0][4].second = 5;
 	ACTION[0][6].first = 's' ,ACTION[0][6].second = 5;
@@ -140,9 +198,31 @@ void init(){
 	GOTO[2][0] = 3 ,GOTO[2][4] = 3 ,GOTO[2][6] = 3, GOTO[2][7] = 10;
 }
 
+bool isACTION(type Table){   //判断执行ACTION操作 还是归约操作
+	if(Table.first == 's') return true;
+	else return false;
+}
+
+
+void print(int &k){
+		k++;
+		cout<<k<<"\t\t";
+		sta.printStauts();
+		cout<<"\t\t";
+		c.printCh();
+		cout<<"\t\t";
+}
+
+
+
 void main() {
 	string s;
 	int len ;
+	int index;
+	int k = 0;
+	int mstatus;
+	char mchract;
+	char x;
 	init();
 	cout<<"请输入输入串包含以下字符（i', +, *, (, )）并以#号结束:"<<endl;
 	cin>>s;
@@ -154,7 +234,8 @@ void main() {
 			case '+':
 			case '*':
 			case '(':
-			case ')': break;
+			case ')':
+			case '#':break;
 			default: {
 				cout<<"输入串含非法字符!"<<endl;
 				exit(1);
@@ -162,11 +243,37 @@ void main() {
 			}
 		}
 	}
-	cout<<"步骤\t\t"<<"状态栈\t\t"<<"符号栈\t\t"<<"输入串\t\t"<<"动作说明"<<endl;
+	cout<<"步骤\t\t"<<"状态栈\t\t"<<"符号栈\t\t"<<"输入串"<<endl;
+	sta.add(0);
+	c.add('#');
+	do{
+		print(k);
+		for(int i = s.length()-len; i < s.length(); i++) cout<<s[i];
+		cout<<endl;
 
+		index = s.length() - len;
+		x = s[index]; //字符串首字母
+		mstatus = sta.getTop(); //状态栈首字母
+		if(isACTION(ACTION[getVT(x)][mstatus])){
+			sta.add(ACTION[getVT(x)][mstatus].second);
+			c.add(x);
+			len--;
+			
+			index = s.length() - len;
+			x = s[index];//指针移向下一位
+		} 
+		else {
+			if(ACTION[getVT(x)][mstatus].first == 'a') {
+				cout<<"==========acc=====分析成功=====acc=========="<<endl;break;
+			}
+			sta.del(r[ACTION[getVT(x)][mstatus].second].length);
+			c.del(r[ACTION[getVT(x)][mstatus].second].length);
+			c.add(r[ACTION[getVT(x)][mstatus].second].origin);
+			mstatus = sta.getTop();
+			mchract = c.getTop();
+			sta.add(GOTO[getVN(mchract)][mstatus]);
+		}
+		
 
-
-
-
-	
+	}while(len != 0);
 }
