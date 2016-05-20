@@ -243,13 +243,13 @@ void main() {
 			}
 		}
 	}
-	cout<<"²½Öè\t\t"<<"×´Ì¬Õ»\t\t"<<"·ûºÅÕ»\t\t"<<"ÊäÈë´®"<<endl;
+	cout<<"²½Öè\t\t"<<"×´Ì¬Õ»\t\t"<<"·ûºÅÕ»\t\t"<<"ÊäÈë´®"<<"\t\t"<<"²Ù×÷ËµÃ÷"<<endl;
 	sta.add(0);
 	c.add('#');
 	do{
 		print(k);
 		for(int i = s.length()-len; i < s.length(); i++) cout<<s[i];
-		cout<<endl;
+		cout<<"\t\t";
 
 		index = s.length() - len;
 		x = s[index]; //×Ö·û´®Ê××ÖÄ¸
@@ -259,13 +259,22 @@ void main() {
 			c.add(x);
 			len--;
 			
+			cout<<ACTION[getVT(x)][mstatus].first<<ACTION[getVT(x)][mstatus].second<<"×´Ì¬"<<ACTION[getVT(x)][mstatus].second<<"ÈëÕ»"<<endl;
+			
 			index = s.length() - len;
 			x = s[index];//Ö¸ÕëÒÆÏòÏÂÒ»Î»
 		} 
 		else {
 			if(ACTION[getVT(x)][mstatus].first == 'a') {
-				cout<<"==========acc=====·ÖÎö³É¹¦=====acc=========="<<endl;break;
+				cout<<"acc·ÖÎö³É¹¦"<<endl;break;
 			}
+			
+			cout<<ACTION[getVT(x)][mstatus].first<<ACTION[getVT(x)][mstatus].second<<"¹éÔ¼"<<r[ACTION[getVT(x)][mstatus].second].origin<<"->";
+			for(int i = 0; i < r[ACTION[getVT(x)][mstatus].second].length; i++){
+				cout<<r[ACTION[getVT(x)][mstatus].second].array[i];
+			}
+			cout<<endl;
+
 			sta.del(r[ACTION[getVT(x)][mstatus].second].length);
 			c.del(r[ACTION[getVT(x)][mstatus].second].length);
 			c.add(r[ACTION[getVT(x)][mstatus].second].origin);
